@@ -12,7 +12,7 @@ SALVAR --> Salva o estado do jogador e o número de inimigos derrotados.
 DESISTIR --> Salva um arquivo de Score contendo a pontuação do jogador.
 
 Personagens:
-GUERREIRO --> Força 3, Habilidade 2, Resistência 3, Armadura 2, Poder de Fogo 0, Pontos de Vida 15, Pontos de Magia 15
+GUERREIRO --> Força 3, Habilidade 2, Resistência 3, Armadura 2, Poder de Fogo 0, Pontos de Vida 20, Pontos de Magia 10
 MAGO --> Força 1, Habilidade 3, Resistência 2, Armadura 0, Poder de Fogo 0, Pontos de Vida 10, Pontos de Magia 30
 PALADINO --> Força 2, Habilidade 3, Resistência 3, Armadura 2, Poder de Fogo 0, Pontos de Vida 15, Pontos de Magia 15
 ARQUEIRO --> Força 0, Habilidade 2, Resistência 2, Armadura 1, Poder de Fogo 3, Pontos de Vida 10, Pontos de Magia 10
@@ -26,12 +26,13 @@ ARQUEIRO --> Arco; Tiro Preciso, Perigoso e Poderoso (4 PMs)
 Já os inimigos são:
 '''
 from random import randint
+from Masmorra import *
 
 def Main():
     '''
     Função principal do jogo.
     '''
-    PLAYER = {'Nome': 'jogador', 'F':0, 'H':0, 'R':0, 'A':0, 'PdF':0, 'PV':1, 'PM':1, 'ATK':{}, 'Status':'Normal', 'dano': ''}
+    PLAYER = {'Nome': 'jogador', 'F':0, 'H':0, 'R':0, 'A':0, 'PdF':0, 'PV':1, 'PM':1, 'ATK':{}, 'Status':'Normal', 'dano': '', 'Ação':ActPlayer}
     rolar = lambda: randint(1,6)
     
     def MenuClasse():
@@ -52,18 +53,26 @@ quando o faz, causa mais dano que os ataques normais ao custo de (4 PMs)')
                     print('Vindo diretamente das arenas de gladiadores, você parte pelo mundo em busca\n\
 de provar que é o melhor guerreiro de toda Arton, e que nada poderá superar sua habilidade com a Espada')
                     print('Você terá Força 3, Habilidade 2, Resistência 3, Armadura 2, Poder de Fogo 0\n\
-15 PVs, 15 PMs e além de poder atacar com seu machado, poderá também usar um poderoso golpe que causa dano crítico\n\
+20 PVs, 10 PMs e além de poder atacar com seu machado, poderá também usar um poderoso golpe que causa dano crítico\n\
 muaior.')
                 elif classe.startswith('m'):
                     print('Armado de um grande cajado e de um extenso grimório, você tem como objetivo provar\n\
 que é capaz de dominar a magia em todos os seus aspectos.')
-                    print('você terá Força 1, Habilidade 3, Resistência 2, Armadura 0  e Poder de Fogo 0\n\
+                    print('Você terá Força 1, Habilidade 3, Resistência 2, Armadura 0  e Poder de Fogo 0\n\
 10 PVs, 30 PMs e será capaz de atacar com seu cajado, além das seguintes magias:\n\
 Arpão (15 PMs): uma poderosa onda sônica de energia mágica capaz de obliterar um inimigo:\n\
 Bola de fogo (6 PMs): uma bola de fogo que explode em uma área, atingindo até três inimigos;\n\
 O Crânio Voador de Vladislav (3 PMs): um crânio mágico que explode contra um alvo, ignorando sua Armadura.')
                 elif classe.startswith('p'):
-                    pass
+                    print('Os deuses escolheram você para cumprir uma missão divina na terra. Através das palavras de sua divindade, de sua coragem\n\
+e sua força, você espalha a palavra de seu patrono pelo mundo, cumprindo as missões\n\
+que lhe são dadas.')
+                    print('Você terá Força 2, Habilidade 3, Resistência 3, Armadura 2, Poder de Fogo 0\n\
+15 PVs, 15 PMs e poderá usar sua Espada para ataques simples. Além disso, terá a sua disposição\n\
+as seguintes magias:\n\
+Ataque Vorpal (1 PM): Um ataque que, em caso de acerto crítico, pode decapitar um inimigo.\n\
+Cura mágica (2 PMs): você recupera entre 1 e 6 PVs próprios.\n\
+')
                 else:
                     break
             while comando.startswith('e'):
@@ -73,8 +82,8 @@ O Crânio Voador de Vladislav (3 PMs): um crânio mágico que explode contra um 
                     PLAYER['H'] = 2
                     PLAYER['R'] = 3
                     PLAYER['A'] = 2
-                    PLAYER['PV'] = 15
-                    PLAYER['PM'] = 15
+                    PLAYER['PV'] = 20
+                    PLAYER['PM'] = 10
                     PLAYER['dano'] = 'seu machado'
                     PLAYER['ATK'] = {'Machado':{'ATK':Atacar, 'PM': 0}}  # DEPOIS DE FINALIZAR OS ATAQUES, VOLTAR AQUI
                     return
@@ -207,7 +216,7 @@ O Crânio Voador de Vladislav (3 PMs): um crânio mágico que explode contra um 
         dano = max(dano, 0)
         vitima['PV'] -= dano
         
-    def BolaDeFogo(atacante, *vitimas):
+    def BolaDeFogo(atacante, vitimas):
         '''
         Função definida para o uso da magia Bola de Fogo.
         '''
@@ -218,7 +227,7 @@ O Crânio Voador de Vladislav (3 PMs): um crânio mágico que explode contra um 
         if len(vitimas) == 1:
             msg1 += ' ao inimigo e de suas mãos uma grande bola de fogo é disparada.'
         else:
-            msg1 += 'ao inimigo e de suas mãos uma grande bola de fogo é disparada.'
+            msg1 += 'aos inimigos e de suas mãos uma grande bola de fogo é disparada.'
         print(msg1)
         for alvo in vitimas:
             dado = rolar()
@@ -255,3 +264,6 @@ O Crânio Voador de Vladislav (3 PMs): um crânio mágico que explode contra um 
             msg = '{} é atingido pelo crânio voador, que causa queimaduras mágicas pelo seu corpo.'.format(vitima['Nome'])
             vitima['PV'] -= dano
         print(msg)
+
+    MenuClasse()
+    return PLAYER

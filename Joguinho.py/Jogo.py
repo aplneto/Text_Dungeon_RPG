@@ -14,13 +14,13 @@ DESISTIR --> Salva um arquivo de Score contendo a pontuação do jogador.
 Personagens:
 GUERREIRO --> Força 3, Habilidade 2, Resistência 3, Armadura 2, Poder de Fogo 0, Pontos de Vida 15, Pontos de Magia 15
 MAGO --> Força 1, Habilidade 3, Resistência 2, Armadura 0, Poder de Fogo 0, Pontos de Vida 10, Pontos de Magia 30
-PALADINO -->
+PALADINO --> Força 2, Habilidade 3, Resistência 3, Armadura 2, Poder de Fogo 0, Pontos de Vida 15, Pontos de Magia 15
 ARQUEIRO --> Força 0, Habilidade 2, Resistência 2, Armadura 1, Poder de Fogo 3, Pontos de Vida 10, Pontos de Magia 10
 
 Os personagens podem usar as seguintes ações.
 GUERREIRO --> Machado; Ataque especial (2 PMs)
-MAGO --> Cajado; Bola de Fogo (5 PMs), O Crânio Voador de Vladislav (3 PMs)
-PALADINO -->
+MAGO --> Cajado; Arpão (15 PMs), Bola de Fogo (5 PMs), O Crânio Voador de Vladislav (3 PMs)
+PALADINO --> Espada; Cura mágica (1 PM), Ataque Especial (1 PM)
 ARQUEIRO --> Arco; Tiro Preciso, Perigoso e Poderoso (4 PMs)
 
 Já os inimigos são:
@@ -31,8 +31,8 @@ def Main():
     '''
     Função principal do jogo.
     '''
-    PLAYER = {'Nome': 'jogador', 'F':0, 'H':0, 'R':0, 'A':0, 'PdF':0, 'PV':1, 'PM':1, 'ATK':{}, 'Status':'Normal'}
-    rolar = (lambda: randint(1,6))
+    PLAYER = {'Nome': 'jogador', 'F':0, 'H':0, 'R':0, 'A':0, 'PdF':0, 'PV':1, 'PM':1, 'ATK':{}, 'Status':'Normal', 'dano': ''}
+    rolar = lambda: randint(1,6)
     
     def MenuClasse():
         nonlocal PLAYER
@@ -43,25 +43,25 @@ def Main():
                 classe = input('Arqueiro(a/arqueiro), Guerreiro (g/guerreiro), Mago(m/mago), Paladino (p/paladino), voltar(v/voltar).\n').lower()
                 if classe.startswith('a'):
                     print ('Um antigo ditado diz que um arqueiro carrega um número de vidas em sua aljava, tamanha é a sua precisão.\n\
-                            Conhecidos por serem silenciosos e mortais, os arqueiros geralmente são notados apenas quando a flecha atinge o alvo.')
-                    print ('O arqueiro possui Força 0, Habilidade 2, Resistência 2, Armadura 1, Poder de Fogo 3\n\
-                            10 PVs, 10 PMs e pode atacar com seu arco.\n\
-                            Além disso, o arqueiro pode realizar um poderoso disparo que tem mais chances de causar dano crítico e que,\n\
-                            quando o faz, causa mais dano que os ataques normais ao custo de (4 PMs)')
+Conhecidos por serem silenciosos e mortais, os arqueiros geralmente são notados apenas quando a flecha atinge o alvo.')
+                    print ('Você terá Força 0, Habilidade 2, Resistência 2, Armadura 1, Poder de Fogo 3\n\
+10 PVs, 10 PMs e pode atacar com seu arco.\n\
+Além disso, você pode realizar um poderoso disparo que tem mais chances de causar dano crítico e que,\n\
+quando o faz, causa mais dano que os ataques normais ao custo de (4 PMs)')
                 elif classe.startswith('g'):
                     print('Vindo diretamente das arenas de gladiadores, você parte pelo mundo em busca\n\
-                           de provar que é o melhor guerreiro de toda Arton, e que nada poderá superar sua habilidade com a Espada')
-                    print('O guerreiro possui Força 3, Habilidade 2, Resistência 3, Armadura 2, Poder de Fogo 0\n\
-                           15 PVs, 15 PMs e além de poder atacar com seu machado, pode usar um poderoso golpe que causa dano crítico\n\
-                          muaior.')
+de provar que é o melhor guerreiro de toda Arton, e que nada poderá superar sua habilidade com a Espada')
+                    print('Você terá Força 3, Habilidade 2, Resistência 3, Armadura 2, Poder de Fogo 0\n\
+15 PVs, 15 PMs e além de poder atacar com seu machado, poderá também usar um poderoso golpe que causa dano crítico\n\
+muaior.')
                 elif classe.startswith('m'):
-                    print('Armado de um grande cajado e de um extenso grimório, o mago tem como objetivo provar\n\
-                            que é capaz de dominar a magia em todos os seus aspectos.')
-                    print('O mago possui Força 1, Habilidade 3, Resistência 2, Armadura 0  e Poder de Fogo 0\n\
-                            10 PVs, 30 PMs e é capaz de atacar com seu cajado, além das seguintes magias:\n\
-                            Bola de fogo (6 PMs): uma bola de fogo que explode em uma área, atingindo até três inimigos;\n\
-                            O Crânio Voador de Vladislav (3 PMs): um crânio mágico que explode contra um alvo, ignorando sua Armadura;\n\
-                            ')
+                    print('Armado de um grande cajado e de um extenso grimório, você tem como objetivo provar\n\
+que é capaz de dominar a magia em todos os seus aspectos.')
+                    print('você terá Força 1, Habilidade 3, Resistência 2, Armadura 0  e Poder de Fogo 0\n\
+10 PVs, 30 PMs e será capaz de atacar com seu cajado, além das seguintes magias:\n\
+Arpão (15 PMs): uma poderosa onda sônica de energia mágica capaz de obliterar um inimigo:\n\
+Bola de fogo (6 PMs): uma bola de fogo que explode em uma área, atingindo até três inimigos;\n\
+O Crânio Voador de Vladislav (3 PMs): um crânio mágico que explode contra um alvo, ignorando sua Armadura.')
                 elif classe.startswith('p'):
                     pass
                 else:
@@ -86,7 +86,7 @@ def Main():
                     PLAYER['PV'] = 10
                     PLAYER['PM'] = 30
                     PLAYER['dano'] = 'seu cajado'
-                    PLAYER['ATK'] = {'Cajado': {'ATK':Atacar, 'PM': 0}, 'Bola de Fogo': {'ATK': BolaDeFogo, 'PM': 5}}  # DEPOIS DE FINALIZAR OS ATAQUES, VOLTAR AQUI
+                    PLAYER['ATK'] = {'Arpão':{'ATK':Arpao, 'PM':15},'Cajado': {'ATK':Atacar, 'PM': 0}, 'Bola de Fogo': {'ATK': BolaDeFogo, 'PM': 5}}  # DEPOIS DE FINALIZAR OS ATAQUES, VOLTAR AQUI
                     return
                 elif classe.startswith('a'):
                     PLAYER['H'] = 2
@@ -97,6 +97,16 @@ def Main():
                     PLAYER['PM'] = 10
                     PLAYER['dano'] = 'seu arco'
                     PLAYER['ATK'] = {'Arco':{'ATK':Disparar, 'PM':0}, 'Golpe Fatal':{'ATK':TiroCerteiro, 'PM':4}}  # DEPOIS DE FINALIZAR OS ATAQUES, VOLTAR AQUI
+                    return
+                elif classe.startswith('p'):
+                    PLAYER['F'] = 2
+                    PLAYER['H'] = 3
+                    PLAYER['R'] = 3
+                    PLAYER['A'] = 2
+                    PLAYER['PV']= 15
+                    PLAYER['PM'] = 15
+                    PLAYER['dano'] = 'sua espada'
+                    PLAYER['ATK'] = {'Espada':{'ATK':Atacar, 'PM':0}}
 
     def Atacar(atacante, vitima):
         '''
@@ -173,6 +183,30 @@ def Main():
         vitima['PV'] -= dano
         print(msg)
 
+    def Arpao (atacante, vitima):
+        '''
+        Função definida para o uso da magia Arpão
+        '''
+        nonlocal rolar
+        atacante['PM'] -= 15
+        msg = '{} junta uma grande quantidade de energia mágica em suas mãos e, com o sussurrar\n\
+                de algumas palavras mágicas, disparando de suas mãos uma onda roxa na forma de um arpão.'.format(atacante['Nome'])
+        print(msg)
+        ataque = atacante['H']
+        for i in range (6):
+            ataque += rolar()
+        dado = rolar()
+        defesa = vitima['H']+vitima['A']+dado
+        dano = ataque-defesa
+        if dano <= 0:
+            msg = 'Milagrosamente, {} consegue desviar do arpão mágico, saindo ileso do golpe.'.format(vitima['Nome'])
+        elif dado == 1:
+            msg = '{} é atingido em cheio pelo ataque, sendo arremessado para longe pelo impacto e sofrento {} pontos de dano.'.format(vitima['Nome'], dano)
+        else:
+            msg = '{} é atingo pelo disparo, sofrendo queimaduras mágicas por todo o corpo e recebendo {} pontos de dano.'.format(vitima['Nome'], dano)
+        dano = max(dano, 0)
+        vitima['PV'] -= dano
+        
     def BolaDeFogo(atacante, *vitimas):
         '''
         Função definida para o uso da magia Bola de Fogo.

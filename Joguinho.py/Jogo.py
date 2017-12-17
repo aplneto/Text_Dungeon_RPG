@@ -18,9 +18,9 @@ PALADINO --> Força 2, Habilidade 3, Resistência 3, Armadura 2, Poder de Fogo 0
 ARQUEIRO --> Força 0, Habilidade 2, Resistência 2, Armadura 1, Poder de Fogo 3, Pontos de Vida 10, Pontos de Magia 10
 
 Os personagens podem usar as seguintes ações.
-GUERREIRO --> Machado; Ataque especial (2 PMs)
+GUERREIRO --> Machado; Ataque especial perigoso e poderoso (3 PMs)
 MAGO --> Cajado; Arpão (15 PMs), Bola de Fogo (5 PMs), O Crânio Voador de Vladislav (3 PMs)
-PALADINO --> Espada; Cura mágica (1 PM), Ataque Especial (1 PM)
+PALADINO --> Espada; Ataque Vorpal (3 PMs), Cura Mágica (2 PMs), Esconjuro (5 PMs)
 ARQUEIRO --> Arco; Tiro Preciso, Perigoso e Poderoso (4 PMs)
 
 Já os inimigos são:
@@ -32,8 +32,9 @@ def Main():
     '''
     Função principal do jogo.
     '''
-    PLAYER = {'Nome': 'jogador', 'F':0, 'H':0, 'R':0, 'A':0, 'PdF':0, 'PV':1, 'PM':1, 'ATK':{}, 'Status':'Normal', 'dano': '', 'Ação':ActPlayer}
+    PLAYER = {'Nome': 'jogador', 'F':0, 'H':0, 'R':0, 'A':0, 'PdF':0, 'PV':1, 'PM':1, 'ATK':{}, 'Status':'Normal', 'dano': '', 'Ação':ActPlayer, 'Tipo': 'Humano'}
     rolar = lambda: randint(1,6)
+    testar = (lambda x: rolar() <= x)
     
     def MenuClasse():
         nonlocal PLAYER
@@ -84,8 +85,9 @@ Cura mágica (2 PMs): você recupera entre 1 e 6 PVs próprios.\n\
                     PLAYER['A'] = 2
                     PLAYER['PV'] = 20
                     PLAYER['PM'] = 10
+                    PLAYER['MAX'] = (20, 10)
                     PLAYER['dano'] = 'seu machado'
-                    PLAYER['ATK'] = {'Machado':{'ATK':Atacar, 'PM': 0}}  # DEPOIS DE FINALIZAR OS ATAQUES, VOLTAR AQUI
+                    PLAYER['ATK'] = {'Machado':{'ATK':Atacar, 'PM': 0}, 'Golpe Demolidor':{}}
                     return
                 elif classe.startswith('m'):
                     PLAYER['F'] = 1
@@ -94,8 +96,9 @@ Cura mágica (2 PMs): você recupera entre 1 e 6 PVs próprios.\n\
                     PLAYER['A'] = 0
                     PLAYER['PV'] = 10
                     PLAYER['PM'] = 30
+                    PLAYER['MAX'] = (10, 30)
                     PLAYER['dano'] = 'seu cajado'
-                    PLAYER['ATK'] = {'Arpão':{'ATK':Arpao, 'PM':15},'Cajado': {'ATK':Atacar, 'PM': 0}, 'Bola de Fogo': {'ATK': BolaDeFogo, 'PM': 5}}  # DEPOIS DE FINALIZAR OS ATAQUES, VOLTAR AQUI
+                    PLAYER['ATK'] = {'Arpão':{'ATK':Arpao, 'PM':15},'Cajado': {'ATK':Atacar, 'PM': 0}, 'Bola de Fogo': {'ATK': BolaDeFogo, 'PM': 5}}
                     return
                 elif classe.startswith('a'):
                     PLAYER['H'] = 2
@@ -104,8 +107,9 @@ Cura mágica (2 PMs): você recupera entre 1 e 6 PVs próprios.\n\
                     PLAYER['PdF'] = 3
                     PLAYER['PV'] = 10
                     PLAYER['PM'] = 10
+                    PLAYER['MAX'] = (10, 10)
                     PLAYER['dano'] = 'seu arco'
-                    PLAYER['ATK'] = {'Arco':{'ATK':Disparar, 'PM':0}, 'Golpe Fatal':{'ATK':TiroCerteiro, 'PM':4}}  # DEPOIS DE FINALIZAR OS ATAQUES, VOLTAR AQUI
+                    PLAYER['ATK'] = {'Arco':{'ATK':Disparar, 'PM':0}, 'Golpe Fatal':{'ATK':TiroCerteiro, 'PM':4}}
                     return
                 elif classe.startswith('p'):
                     PLAYER['F'] = 2
@@ -114,8 +118,9 @@ Cura mágica (2 PMs): você recupera entre 1 e 6 PVs próprios.\n\
                     PLAYER['A'] = 2
                     PLAYER['PV']= 15
                     PLAYER['PM'] = 15
+                    PLAYER['MAX'] = (15, 15)
                     PLAYER['dano'] = 'sua espada'
-                    PLAYER['ATK'] = {'Espada':{'ATK':Atacar, 'PM':0}}
+                    PLAYER['ATK'] = {'Espada':{'ATK':Atacar, 'PM':0}, 'Cura Mágica':{'ATK':CuraMagica, 'PM':2}, 'Esconjuro':{'ATK': Esconjuro, 'PM': 5}, 'Ataque Vorpal':{'ATK':AtaqueVorpal, 'PM': 3}}
 
     def Atacar(atacante, vitima):
         '''
@@ -142,6 +147,50 @@ Cura mágica (2 PMs): você recupera entre 1 e 6 PVs próprios.\n\
             vitima['PV'] -= dano
         print(msg)
         
+    def AtaqueVorpal (atacante, vitima):
+        '''
+        Função definida para o uso da magia "Ataque Vorpal" do Paladino.
+        '''
+        nonlocal rolar
+        nonlocal testar
+        atacante['PM'] -= 3
+        print ('Você ora para que os deuses abençoem a lâmina de sua espada e investe contra {}.'.format(vitima['Nome']))
+        critico = False
+        dadoAtaque = rolar()
+        ataque = atacante['F']+atacante['H']+dadoAtaque+1
+        if dadoAtaque == 6:
+            critico = True
+            ataque += atacante['F']+1
+        dadoDefesa = rolar()
+        defesa = vitima['A']+vitima['H']+dadoDefesa
+        if dadoDefesa == 6:
+            defesa += vitima['A']
+        dano = ataque-defesa
+        dano = max(0, dano)
+        if (dano != 0) and critico:
+            if testar(vitima['R']):
+                print('A espada corta o ar em direção a cabeça de {}, que consegue esquivar da lâmina, mas acaba atingido pelo corte que viaja através do vento,\n\
+sofrendo {} pontos de dano.'.format(vitima['Nome'], dano))
+            else:
+                print('Girando seu corpo rapidamente, você consegue separar a cabeça de {} do corpo, que cai inerte no chão.'.format(vitima['Nome']))
+                vitima['PV'] = 0
+        elif dano!= 0:
+            print ('Você brande a espada ferozmente em um giro que corta o ar a sua volta, atingindo {} e causando {} pontos de dano.'.format(vitima['Nome'], dano))
+        else:
+            print('{} consegue desviar do seu golpe no último instante, dando um salto para trás e saindo ileso do ataque.'.format(vitima['Nome']))
+        vitima['PV'] -= dano
+        
+    def CuraMagica (usuario):
+        '''
+        Função definida para a magia cura mágica
+        '''
+        nonlocal rolar
+        dado = rolar()
+        usuario['PM'] -= 2
+        usuario['PV'] = min(usuario['MAX'][0], usuario['PV'] + dado)
+        print ('{0} concentra energias mágicas em suas mãos, levando-as ao corpo para amenizar seus ferimentos.'.format(usuario))
+        print ('{} recupera {} pontos de vida.'.format(usuario, dado))
+        
     def Disparar(atacante, vitima):
         '''
         Função definida para os ataques físicos a distância, feitos com PdF.
@@ -167,6 +216,45 @@ Cura mágica (2 PMs): você recupera entre 1 e 6 PVs próprios.\n\
             vitima['PV'] -= dano
         print(msg)
 
+    def Esconjuro(atacante, vitima):
+        '''
+        Função definida para a magia esconjuro, efetiva apenas contra mortos vivos.
+        '''
+        nonlocal testar
+        atacante['PM'] -= 5
+        msg ='Depois de uma oração, {} estende as mãos na direção de {}'.format(atacante['Nome'], vitima['Nome'])
+        if (testar(vitima['R'])) or (vitima['Tipo'] != 'Morto-vivo'):
+            msg+=', mas nada acontece.'
+        else:
+            msg+=', liberando uma grande quantidade de luz que atinge seu alvo em cheio, destruindo-o.'
+            vitima['PV'] = 0
+
+    def GolpeDemolidor(atacante, vitima):
+        '''
+        Função definida para o ataque especial do guerreiro.
+        '''
+        nonlocal rolar
+        atacante['PM'] -= 3
+        dado = rolar()
+        ataque = dado+atacante['F']+atacante['H']+2
+        critico = False
+        if dado == 6 or dado == 5:
+            critico = True
+            ataque += 2*atacante['F']
+        dado = rolar()
+        defesa = vitima['A']+vitima['H']+dado
+        if dado == 6:
+            defesa += vitima['A']
+        dano = ataque-defesa
+        dano = max(0, dano)
+        if dano != 0 and critico:
+            print('{} gira seu machado com violência, descendo-o rapidamente em um golpe vertical.\n {} É atingido em cheio, sofrendo {} pontos de dano.'.format(atacante['Nome'],vitima['Nome'], dano))
+        elif dano!= 0:
+            print('() brande seu machado furiosamente contra {}, atingido-o e causando {} pontos de dano.'.format(atacante['Nome'],vitima['Nome'],dano))
+        else:
+            print('{} avança com o machado em mãos, brandindo-o em um movimento rápido, mas acaba por errar {}, que se esquiva sem dificuldades.'.format(atacante['Nome'], vitima['Nome']))
+        vitima['PV'] -= dano
+        
     def TiroCerteiro(atacante, vitima):
         '''
         Função definida para o tiro certeiro da classe arqueiro.
@@ -239,11 +327,11 @@ Cura mágica (2 PMs): você recupera entre 1 e 6 PVs próprios.\n\
                 msg2 = '{} consegue defender-se da bola de fogo, saindo ileso do ataque.'.format(vitima['Nome'])
                 print(msg2)
             elif dado == 1:
-                msg = 'A bola de fogo atinge {} em cheio, causando {} ponto de dano.'.format(vitima['Nome'], dano)
+                msg2 = 'A bola de fogo atinge {} em cheio, causando {} ponto de dano.'.format(vitima['Nome'], dano)
                 print(msg2)
                 vitima['PV'] -= dano
             else:
-                msg = 'A bola de fogo explode próxima a {}, causando-lhe {} pontos de dano.'.format(vitima['Nome'], dano)
+                msg2 = 'A bola de fogo explode próxima a {}, causando-lhe {} pontos de dano.'.format(vitima['Nome'], dano)
                 print(msg2)
                 vitima['PV'] -= dano
 
@@ -266,4 +354,5 @@ Cura mágica (2 PMs): você recupera entre 1 e 6 PVs próprios.\n\
         print(msg)
 
     MenuClasse()
+    PLAYER['Nome'] = input('Qual o seu nome?\n')
     return PLAYER

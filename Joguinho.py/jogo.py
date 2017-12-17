@@ -26,7 +26,7 @@ ARQUEIRO --> Arco; Tiro Preciso, Perigoso e Poderoso (4 PMs)
 Já os inimigos são:
 '''
 from random import randint
-from Masmorra import *
+from masmorra import *
 
 def Main():
     '''

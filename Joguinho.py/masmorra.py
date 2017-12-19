@@ -5,12 +5,10 @@ from random import randint
 
 d6 = lambda:randint(1,6)
 
-score = 0
 fim_de_jogo = False
 
 def Combate (player, inimigos):
     global fim_de_jogo
-    global score
     comando = input('Cálculo de iniciativa.\n')
     player['Iniciativa'] = player['H'] + d6()
     for inimigo in inimigos:
@@ -51,8 +49,8 @@ def Combate (player, inimigos):
                     personagem['AI'](player, personagem)
                     VerificarDano(ordem)
                 else:
-                    score += ordem.pop(vez)['score']
                     print(personagem['Morte'])
+                    player['score'] += ordem.pop(vez)['score']
                 vez += 1
         
 def ActPlayer(player, inimigos):

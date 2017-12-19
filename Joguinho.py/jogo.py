@@ -33,7 +33,6 @@ def Main():
     '''
     Função principal do jogo.
     '''
-    global score
     global fim_de_jogo
     PLAYER = {'Nome': 'jogador', 'F':0, 'H':0, 'R':0, 'A':0, 'PdF':0, 'PV':1, 'PM':1, 'ATK':{}, 'Status':'Normal', 'dano': '', 'Ação':ActPlayer, 'Tipo': 'Humano', 'score':0}
     rolar = lambda: randint(1,6)
@@ -64,6 +63,7 @@ def Main():
                     PLAYER['MAX'] = (10, 10)
                     PLAYER['dano'] = 'seu arco'
                     PLAYER['ATK'] = {'Arco':{'ATK':Disparar, 'PM':0}, 'Faca':{'ATK':Atacar, 'PM':0},'Golpe Fatal':{'ATK':TiroCerteiro, 'PM':4}}
+                    PLAYER['classe'] = 'a'
                     break
                 elif comando.startswith('v'):
                     continue
@@ -88,6 +88,7 @@ def Main():
                     PLAYER['MAX'] = (20, 10)
                     PLAYER['dano'] = 'seu machado'
                     PLAYER['ATK'] = {'Machado':{'ATK':Atacar, 'PM': 0}, 'Golpe Demolidor':{}}
+                    PLAYER['classe'] = 'g'
                     break
                 elif comando.startswith('v'):
                     continue
@@ -114,6 +115,7 @@ def Main():
                     PLAYER['MAX'] = (10, 30)
                     PLAYER['dano'] = 'seu cajado'
                     PLAYER['ATK'] = {'Arpão':{'ATK':Arpao, 'PM':15},'Cajado': {'ATK':Atacar, 'PM': 0}, 'Bola de Fogo': {'ATK': BolaDeFogo, 'PM': 5}}
+                    PLAYER['classe'] = 'm'
                     break
                 elif comando.startswith('v'):
                     continue
@@ -140,6 +142,7 @@ def Main():
                     PLAYER['MAX'] = (15, 15)
                     PLAYER['dano'] = 'sua espada'
                     PLAYER['ATK'] = {'Espada':{'ATK':Atacar, 'PM':0}, 'Cura Mágica':{'ATK':CuraMagica, 'PM':2}, 'Esconjuro':{'ATK': Esconjuro, 'PM': 5}, 'Ataque Vorpal':{'ATK':AtaqueVorpal, 'PM': 3}}
+                    PLAYER['classe'] = 'p'
                     break
                 elif comando.startswith('v'):
                     continue
@@ -152,7 +155,7 @@ def Main():
         Função definida para os ataques fisicos simples, feitos com F.
         '''
         nonlocal rolar
-        msg = '{} ataca {} com {}'.format(atacante['Nome'], vitima['Nome'], atacante['dano'])
+        msg = '<!> {} ataca {} com {}'.format(atacante['Nome'], vitima['Nome'], atacante['dano'])
         dado = rolar()
         ataque = atacante['F']+atacante['H']+dado
         if dado == 6 and (atacante['F'] > 0):
@@ -179,7 +182,7 @@ def Main():
         nonlocal rolar
         nonlocal testar
         atacante['PM'] -= 3
-        print ('Você ora para que os deuses abençoem a lâmina de sua espada e investe contra {}.'.format(vitima['Nome']))
+        print ('<!> {} ora para que os deuses abençoem a lâmina de sua espada e investe contra {}.'.format(atacante['Nome'],vitima['Nome']))
         critico = False
         dadoAtaque = rolar()
         ataque = atacante['F']+atacante['H']+dadoAtaque+1
@@ -194,15 +197,15 @@ def Main():
         dano = max(0, dano)
         if (dano != 0) and critico:
             if testar(vitima['R']):
-                print('A espada corta o ar em direção a cabeça de {}, que consegue esquivar da lâmina, mas acaba atingido pelo corte que viaja através do vento,\n\
+                print('<!> A espada corta o ar em direção a cabeça de {}, que consegue esquivar da lâmina, mas acaba atingido pelo corte que viaja através do vento,\n\
 sofrendo {} pontos de dano.'.format(vitima['Nome'], dano))
             else:
-                print('Girando seu corpo rapidamente, você consegue separar a cabeça de {} do corpo, que cai inerte no chão.'.format(vitima['Nome']))
+                print('<!> Girando seu corpo rapidamente, {} consegue separar a cabeça de {} do corpo, que cai inerte no chão.'.format(atacante['Nome'], vitima['Nome']))
                 vitima['PV'] = 0
         elif dano!= 0:
-            print ('Você brande a espada ferozmente em um giro que corta o ar a sua volta, atingindo {} e causando {} pontos de dano.'.format(vitima['Nome'], dano))
+            print ('<!> {} brande a espada ferozmente em um giro que corta o ar a sua volta, atingindo {} e causando {} pontos de dano.'.format(atacante['Nome'], vitima['Nome'], dano))
         else:
-            print('{} consegue desviar do seu golpe no último instante, dando um salto para trás e saindo ileso do ataque.'.format(vitima['Nome']))
+            print('<!> {} consegue desviar do seu golpe no último instante, dando um salto para trás e saindo ileso do ataque.'.format(vitima['Nome']))
         vitima['PV'] -= dano
         
     def CuraMagica (usuario):
@@ -213,15 +216,15 @@ sofrendo {} pontos de dano.'.format(vitima['Nome'], dano))
         dado = rolar()
         usuario['PM'] -= 2
         usuario['PV'] = min(usuario['MAX'][0], usuario['PV'] + dado)
-        print ('{0} concentra energias mágicas em suas mãos, levando-as ao corpo para amenizar seus ferimentos.'.format(usuario))
-        print ('{} recupera {} pontos de vida.'.format(usuario, dado))
+        print ('<!> {0} concentra energias mágicas em suas mãos, levando-as ao corpo para amenizar seus ferimentos.'.format(usuario['Nome']))
+        print ('<!> {} recupera {} pontos de vida.'.format(usuario['Nome'], dado))
         
     def Disparar(atacante, vitima):
         '''
         Função definida para os ataques físicos a distância, feitos com PdF.
         '''
         nonlocal rolar
-        msg = '{} dispara {} contra {}'.format(atacante['Nome'], atacante['dano'], vitima['Nome'])
+        msg = '<!> {} dispara {} contra {}'.format(atacante['Nome'], atacante['dano'], vitima['Nome'])
         dado = rolar()
         ataque = atacante['PdF']+atacante['H']+dado
         if dado == 6 and (atacante['F'] > 0):
@@ -247,7 +250,7 @@ sofrendo {} pontos de dano.'.format(vitima['Nome'], dano))
         '''
         nonlocal testar
         atacante['PM'] -= 5
-        msg ='Depois de uma oração, {} estende as mãos na direção de {}'.format(atacante['Nome'], vitima['Nome'])
+        msg ='<!> Depois de uma oração, {} estende as mãos na direção de {}'.format(atacante['Nome'], vitima['Nome'])
         if (testar(vitima['R'])) or (vitima['Tipo'] != 'morto-vivo'):
             msg+=', mas nada acontece.'
         else:
@@ -273,11 +276,11 @@ sofrendo {} pontos de dano.'.format(vitima['Nome'], dano))
         dano = ataque-defesa
         dano = max(0, dano)
         if dano != 0 and critico:
-            print('{} gira seu machado com violência, descendo-o rapidamente em um golpe vertical.\n {} É atingido em cheio, sofrendo {} pontos de dano.'.format(atacante['Nome'],vitima['Nome'], dano))
+            print('<!> {} gira seu machado com violência, descendo-o rapidamente em um golpe vertical.\n {} É atingido em cheio, sofrendo {} pontos de dano.'.format(atacante['Nome'],vitima['Nome'], dano))
         elif dano!= 0:
-            print('() brande seu machado furiosamente contra {}, atingido-o e causando {} pontos de dano.'.format(atacante['Nome'],vitima['Nome'],dano))
+            print('<!> () brande seu machado furiosamente contra {}, atingido-o e causando {} pontos de dano.'.format(atacante['Nome'],vitima['Nome'],dano))
         else:
-            print('{} avança com o machado em mãos, brandindo-o em um movimento rápido, mas acaba por errar {}, que se esquiva sem dificuldades.'.format(atacante['Nome'], vitima['Nome']))
+            print('<!> {} avança com o machado em mãos, brandindo-o em um movimento rápido, mas acaba por errar {}, que se esquiva sem dificuldades.'.format(atacante['Nome'], vitima['Nome']))
         vitima['PV'] -= dano
         
     def TiroCerteiro(atacante, vitima):
@@ -290,17 +293,17 @@ sofrendo {} pontos de dano.'.format(vitima['Nome'], dano))
         ataque = atacante['H'] + atacante['PdF'] + dado
         if dado >= 5:
             ataque += 2*atacante['PdF']
-        msg = '{} concentra suas energias em {} antes de realizar o disparo fatal.'.format(atacante['Nome'], atacante['dano'])
+        msg = '<!> {} concentra suas energias em {} antes de realizar o disparo fatal.'.format(atacante['Nome'], atacante['dano'])
         print(msg)
         dado = rolar()
         defesa = vitima['H'] + vitima['PdF'] + dado
         dano = ataque - defesa
         if dano <= 0:
-            msg = 'No entanto, {} consegue proteger-se do disparo, fazendo {} errar seu alvo.'.format(vitima['Nome'], atacante['Nome'])
+            msg = '<!> No entanto, {} consegue proteger-se do disparo, fazendo {} errar seu alvo.'.format(vitima['Nome'], atacante['Nome'])
         elif dado == 1:
-            msg = '{} é atingido em cheio pelo disparo que atravessa seu corpo, causando {} pontos de dano.'.format(vitima['Nome'], dano)
+            msg = '<!> {} é atingido em cheio pelo disparo que atravessa seu corpo, causando {} pontos de dano.'.format(vitima['Nome'], dano)
         else:
-            msg = '{} é atingo pelo disparo sofrento {} pontos de dano.'.format(vitima['Nome'], dano)
+            msg = '<!> {} é atingo pelo disparo sofrento {} pontos de dano.'.format(vitima['Nome'], dano)
         dano = max(dano, 0)
         vitima['PV'] -= dano
         print(msg)
@@ -311,7 +314,7 @@ sofrendo {} pontos de dano.'.format(vitima['Nome'], dano))
         '''
         nonlocal rolar
         atacante['PM'] -= 15
-        msg = '{} junta uma grande quantidade de energia mágica em suas mãos e, com o sussurrar\n\
+        msg = '<!> {} junta uma grande quantidade de energia mágica em suas mãos e, com o sussurrar\n\
                 de algumas palavras mágicas, disparando de suas mãos uma onda roxa na forma de um arpão.'.format(atacante['Nome'])
         print(msg)
         ataque = atacante['H']
@@ -321,11 +324,11 @@ sofrendo {} pontos de dano.'.format(vitima['Nome'], dano))
         defesa = vitima['H']+vitima['A']+dado
         dano = ataque-defesa
         if dano <= 0:
-            msg = 'Milagrosamente, {} consegue desviar do arpão mágico, saindo ileso do golpe.'.format(vitima['Nome'])
+            msg = '<!> Milagrosamente, {} consegue desviar do arpão mágico, saindo ileso do golpe.'.format(vitima['Nome'])
         elif dado == 1:
-            msg = '{} é atingido em cheio pelo ataque, sendo arremessado para longe pelo impacto e sofrento {} pontos de dano.'.format(vitima['Nome'], dano)
+            msg = '<!> {} é atingido em cheio pelo ataque, sendo arremessado para longe pelo impacto e sofrento {} pontos de dano.'.format(vitima['Nome'], dano)
         else:
-            msg = '{} é atingo pelo disparo, sofrendo queimaduras mágicas por todo o corpo e recebendo {} pontos de dano.'.format(vitima['Nome'], dano)
+            msg = '<!> {} é atingo pelo disparo, sofrendo queimaduras mágicas por todo o corpo e recebendo {} pontos de dano.'.format(vitima['Nome'], dano)
         dano = max(dano, 0)
         vitima['PV'] -= dano
         
@@ -336,7 +339,7 @@ sofrendo {} pontos de dano.'.format(vitima['Nome'], dano))
         nonlocal rolar
         ataque = atacante['H']+5+rolar()
         atacante['PM'] -= 5
-        msg1 = '{} sussurra algumas palavras mágicas e extende as mãos em direção'.format(atacante['Nome'])
+        msg1 = '<!> {} sussurra algumas palavras mágicas e extende as mãos em direção'.format(atacante['Nome'])
         if len(vitimas) == 1:
             msg1 += ' ao inimigo e de suas mãos uma grande bola de fogo é disparada.'
         else:
@@ -349,14 +352,14 @@ sofrendo {} pontos de dano.'.format(vitima['Nome'], dano))
                 defesa += vitima['A']
             dano = ataque-defesa
             if dano<=0:
-                msg2 = '{} consegue defender-se da bola de fogo, saindo ileso do ataque.'.format(vitima['Nome'])
+                msg2 = '<!> {} consegue defender-se da bola de fogo, saindo ileso do ataque.'.format(vitima['Nome'])
                 print(msg2)
             elif dado == 1:
-                msg2 = 'A bola de fogo atinge {} em cheio, causando {} ponto de dano.'.format(vitima['Nome'], dano)
+                msg2 = '<!> A bola de fogo atinge {} em cheio, causando {} ponto de dano.'.format(vitima['Nome'], dano)
                 print(msg2)
                 vitima['PV'] -= dano
             else:
-                msg2 = 'A bola de fogo explode próxima a {}, causando-lhe {} pontos de dano.'.format(vitima['Nome'], dano)
+                msg2 = '<!> A bola de fogo explode próxima a {}, causando-lhe {} pontos de dano.'.format(vitima['Nome'], dano)
                 print(msg2)
                 vitima['PV'] -= dano
 
@@ -367,16 +370,37 @@ sofrendo {} pontos de dano.'.format(vitima['Nome'], dano))
         nonlocal rolar
         ataque = atacante['H']+rolar()+rolar()
         atacante['PM'] -= 3
-        msg = '{} dispara de suas mãos um horrendo crânio de energia mágica, que voa na direção de seu alvo.'.format(atacante['Nome'])
+        msg = '<!> {} dispara de suas mãos um horrendo crânio de energia mágica, que voa na direção de seu alvo.'.format(atacante['Nome'])
         print(msg)
         defesa = vitima['H']+rolar()
         dano = ataque-defesa
         if dano <= 0:
-            msg = 'O crânio erra o alvo e {} sai ileso do ataque.'.format(vitima['Nome'])
+            msg = '<!> O crânio erra o alvo e {} sai ileso do ataque.'.format(vitima['Nome'])
         else:
-            msg = '{} é atingido pelo crânio voador, que causa queimaduras mágicas pelo seu corpo.'.format(vitima['Nome'])
+            msg = '<!> {} é atingido pelo crânio voador, que causa queimaduras mágicas pelo seu corpo.'.format(vitima['Nome'])
             vitima['PV'] -= dano
         print(msg)
+
+    def MordidaVampiro (atacante, vitima):
+        '''
+        Função definida para o ataque padrão do Vampiro.
+        '''
+        nonlocal rolar
+        ataque = atacante['F']+atacante['H']+rolar()
+        print ('<!> {} salta na direção de {}, abrindo ao máximo sua boca e expondo grandes caninos prontos para dilacerar.'.format(atacante['Nome'], vitima['Nome']))
+        dado = rolar()
+        defesa = vitima['A']+vitima['H']+dado
+        if dado == 6:
+            defesa += vitima['A']
+        dano = ataque-defesa
+        dano = max(0, dano)
+        if dano <= 0:
+            print('<!> No último instante, {} rola para o lado, escapando do ataque ileso.'.format(vitima['Nome']))
+        else:
+            print('<<!> {0} É atingido pela mordida de {1}, que corta seu pescoço, dilacerando sua carne.\n'
+                  '{0} sofre {2} pontos de dano e {1} recupera {2} pontos de vida.'.format(vitima['Nome'], atacante['Nome'], dano))
+        vitima['PV'] -= dano
+        atacante['PV'] += dano
 
     def EncontrarInimigo():  #IA de controle de inimigos
         print('...')
@@ -393,7 +417,14 @@ sofrendo {} pontos de dano.'.format(vitima['Nome'], dano))
             if comando.startswith('c'):
                 break
             elif comando.startswith ('s'):  # Menu de Salvar, lembrar de configurar
-                pass
+                try:
+                    arquivo = open('continue.txt', 'a')
+                except FileNotFoundError:
+                    arquivo = open('continue.txt','w')
+                finally:
+                    arquivo.write('{}\n'.format(PLAYER['Nome']))
+                    arquivo.write('f{}h{}r{}a{}p{}v{}m{}@{}\n'.format(PLAYER['F'],PLAYER['H'],PLAYER['R'],PLAYER['A'],PLAYER['PdF'],PLAYER['PV'],PLAYER['PM'],PLAYER['classe']))
+                    arquivo.write('{}\n'.format(PLAYER['score']))
             elif comando.startswith ('a'):  # Instruções da masmorra
                 pass
             elif comando.startswith('e'):  # Menu de Experiência
@@ -405,16 +436,139 @@ sofrendo {} pontos de dano.'.format(vitima['Nome'], dano))
                 print('...')
                 print('Escolha um comando válido.')
             
+    def CarregarJogos():
+        '''
+        Função definida para o carregamento de jogos salvos.
+        '''
+        try:
+            arquivo = open('continue.txt','r')
+        except FileNotFoundError:
+            return []
+        else:
+            codigo = 'Tormenta 2018'
+            jogos = []
+            while codigo != '':
+                codigo = arquivo.readline()
+                if codigo != '':
+                    nome = ''
+                    for c in codigo:
+                        if c!='\n':
+                            nome += c
+                    codigo = arquivo.readline()
+                    temp = ''
+                    for c in codigo:
+                        if c == 'h':
+                            f = int(temp)
+                            temp = ''
+                        elif c == 'r':
+                            h = int(temp)
+                            temp = ''
+                        elif c == 'a':
+                            r = int(temp)
+                            temp = ''
+                        elif c == 'p':
+                            a = int(temp)
+                            temp = ''
+                        elif c == 'v':
+                            pdf = int(temp)
+                            temp = ''
+                        elif c == 'm':
+                            pv = int(temp)
+                            temp = ''
+                        elif c == '@':
+                            pm = int(temp)
+                            temp = ''
+                        elif c == '\n':
+                            classe = temp
+                            temp = ''
+                        elif c!='f':
+                            temp += c
+                    codigo = arquivo.readline()
+                    score = ''
+                    for c in codigo:
+                        if c != '\n':
+                            score += c
+                    score = int(score)
+                    if classe == 'a':
+                        atk = {'Arco':{'ATK':Disparar, 'PM':0}, 'Faca':{'ATK':Atacar, 'PM':0},'Golpe Fatal':{'ATK':TiroCerteiro, 'PM':4}}
+                        dano = 'seu arco'
+                        maximo = (10, 10)
+                    elif classe == 'g':
+                        atk = {'Machado':{'ATK':Atacar, 'PM': 0}, 'Golpe Demolidor':{}}
+                        dano = 'seu machado'
+                        maximo = (20, 10)
+                    elif classe == 'm':
+                        atk = {'Arpão':{'ATK':Arpao, 'PM':15},'Cajado': {'ATK':Atacar, 'PM': 0}, 'Bola de Fogo': {'ATK': BolaDeFogo, 'PM': 5}}
+                        dano = 'seu cajado'
+                        maximo (10, 30)
+                    elif classe == 'p':
+                        atk = {'Espada':{'ATK':Atacar, 'PM':0}, 'Cura Mágica':{'ATK':CuraMagica, 'PM':2}, 'Esconjuro':{'ATK': Esconjuro, 'PM': 5}, 'Ataque Vorpal':{'ATK':AtaqueVorpal, 'PM': 3}}
+                        dano = 'sua espada'
+                        maximo (15, 15)
+                    jogos.append(dict(Nome=nome, F=f, H=h, R=r, A=a, PdF=pdf, score=score, PV=pv, PM=pm, ATK=atk, dano=dano, MAX=maximo, classe=classe))
+            return jogos
+                
     #  Fichas dos inimigos abaixo:
+
     ZUMBI = {'Nome': 'Zumbi', 'F':1, 'H':2, 'R':2, 'A':0, 'PdF':0, 'PV':10, 'PM':10, 'Status':'Normal', 'dano': 'suas garras', 'Ação':Grunt, 'Tipo': 'morto-vivo', 'score':5}
     ZUMBI['ATK'] = {'ataque': {'ATK': Atacar, 'PM': 0}}
-    ZUMBI['Morte'] = ''
+    ZUMBI['Morte'] = 'O zumbi cai no chão, onde permanece imóvel.'
+    
+    TROG = {'Nome': 'Troglodita', 'F':2, 'H':2, 'R':2, 'A':1, 'PdF': 0, 'PV':10, 'PM':10, 'Status': 'Normal', 'dano': 'sua clava', 'Ação': Grunt, 'Tipo': 'trog', 'score':7}
+    TROG['ATK'] = {'ataque':{'ATK': Atacar, 'PM': 0}}
+    TROG['Morte'] = 'O horrendo lagarto trog cai no chão segurando as entranhas onde morre.'
 
+    VAMPIRO = {'Nome': 'Vampiro', 'F':2, 'H':2, 'R':2, 'A':1, 'PdF':0, 'PV':10, 'PM':10, 'Status':'Normal', 'dano': 'suas presas', 'Ação': Grunt, 'Tipo':'morto-vivo', 'score':8}
+    VAMPIRO['ATK'] = {'ataque':{'ATK': MordidaVampiro, 'PM':0}}
+    VAMPIRO['Morte'] = 'A besta vampira se desfaz em uma poça de sangue e gosma.'
+
+    
+
+    # Grupos de inimigos
+    Grunts = [ZUMBI, TROG, VAMPIRO]
+    Monstros = []
+    General = []
+    Chefe = []
+    
     # Inicio do Jogo
     while True:
         escolha = input('Novo Jogo(n/novo), Continuar(c/continuar), Sair(s/sair)\n').lower()
         if escolha.startswith('c'):
-            pass
+            jogos_salvos = CarregarJogos()
+            if len(jogos_salvos) == 0:
+                print("Não existem jogos salvos a serem carregados.")
+            else:
+                print("Selecione o personagem que deseja carregar:\n")
+                aux = 1
+                for personagem in jogos_salvos:
+                      print(str(aux)+' - {} (F{} H{} R{} A{} PdF{} PV{}/{} PM{}/{}'.format(personagem['Nome'], personagem['F'], personagem['H'], personagem['R'], personagem['A'], personagem['PdF'], personagem['PV'], personagem['MAX'][0], personagem['PM'], personagem['MAX'][1]))
+                escolha = int(input('\n\nDigite o número correspondente ao personagem\n'))
+                try:
+                    selecionado = jogos_salvos[escolha-1]
+                except IndexError:
+                    print('Selecione um personagem válido')
+                else:
+                    PLAYER['Nome'] = selecionado['Nome']
+                    PLAYER['F'] = selecionado['F']
+                    PLAYER['H'] = selecionado['H']
+                    PLAYER['R'] = selecionado['R']
+                    PLAYER['A'] = selecionado['A']
+                    PLAYER['PdF'] = selecionado['PdF']
+                    PLAYER['PV'] = selecionado['PV']
+                    PLAYER['PM'] = selecionado['PM']
+                    PLAYER['MAX'] = selecionado['MAX']
+                    PLAYER['score'] = selecionado['score']
+                    PLAYER['ATK'] = selecionado['ATK']
+                    PLAYER['dano'] = selecionado['dano']
+                    PLAYER['classe'] = selecionado['classe']
+                    while not fim_de_jogo:
+                        Jogar()
+                        if not fim_de_jogo:
+                            inimigos = EncontrarInimigo()
+                            print('...')
+                            Combate(PLAYER, inimigos)
+                    
+                
         elif escolha.startswith('s'):
             break
         elif escolha.startswith('n'):

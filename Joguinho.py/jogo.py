@@ -35,6 +35,7 @@ def Main():
     '''
     global fim_de_jogo
     PLAYER = {'Nome': 'jogador', 'F':0, 'H':0, 'R':0, 'A':0, 'PdF':0, 'PV':1, 'PM':1, 'ATK':{}, 'Status':'Normal', 'dano': '', 'Ação':ActPlayer, 'Tipo': 'Humano', 'score':0}
+    PLAYER['Morte'] = GameOver
     rolar = lambda: randint(1,6)
     testar = (lambda x: rolar() <= x)
     
@@ -51,7 +52,7 @@ def Main():
                        '<!> 10 PVs, 10 PMs e pode atacar com seu arco.\n'
                        '<!> Além disso, você pode realizar um poderoso disparo que tem mais chances de causar dano crítico e que, quando o faz, causa mais dano que os ataques normais ao custo de 4 PMs.')
                 print ('...')
-                comando = input('Confirmar (c/confirmar), voltar(v/voltar)').lower()
+                comando = input('Confirmar (c/confirmar), voltar(v/voltar)\n').lower()
                 if comando.startswith('c'):
                     PLAYER['F'] = 1
                     PLAYER['H'] = 2
@@ -62,7 +63,7 @@ def Main():
                     PLAYER['PM'] = 10
                     PLAYER['MAX'] = (10, 10)
                     PLAYER['dano'] = 'seu arco'
-                    PLAYER['ATK'] = {'Arco':{'ATK':Disparar, 'PM':0}, 'Faca':{'ATK':Atacar, 'PM':0},'Golpe Fatal':{'ATK':TiroCerteiro, 'PM':4}}
+                    PLAYER['ATK'] = {'Arco':{'ATK':Disparar, 'PM':0}, 'Faca':{'ATK':Atacar, 'PM':0},'Golpe Fatal':{'ATK':TiroCerteiro, 'PM':4}, 'Ajuda':{'ATK':Ajuda, 'PM':0}}
                     PLAYER['classe'] = 'a'
                     break
                 elif comando.startswith('v'):
@@ -77,7 +78,7 @@ def Main():
                       '<!> 20 PVs, 10 PMs e usará um machado.\n'
                       '<!> Além disso, você poderá também usar um poderoso golpe que causa muito mais dano por 3 PMs.')
                 print('...')
-                comando = input('Confirmar (c/confirmar), voltar(v/voltar)').lower()
+                comando = input('Confirmar (c/confirmar), voltar(v/voltar)\n').lower()
                 if comando.startswith('c'):
                     PLAYER['F'] = 3
                     PLAYER['H'] = 2
@@ -87,7 +88,7 @@ def Main():
                     PLAYER['PM'] = 10
                     PLAYER['MAX'] = (20, 10)
                     PLAYER['dano'] = 'seu machado'
-                    PLAYER['ATK'] = {'Machado':{'ATK':Atacar, 'PM': 0}, 'Golpe Demolidor':{}}
+                    PLAYER['ATK'] = {'Machado':{'ATK':Atacar, 'PM': 0}, 'Golpe Demolidor':{}, 'Ajuda':{'ATK':Ajuda, 'PM':0}}
                     PLAYER['classe'] = 'g'
                     break
                 elif comando.startswith('v'):
@@ -104,7 +105,7 @@ def Main():
                       '<!> Bola de fogo (6 PMs): uma bola de fogo que explode em uma área, atingindo até três inimigos;\n'
                       '<!> O Crânio Voador de Vladislav (3 PMs): um crânio mágico que explode contra um alvo, ignorando sua Armadura.')
                 print('...')
-                comando = input('Confirmar (c/confirmar), voltar(v/voltar)').lower()
+                comando = input('Confirmar (c/confirmar), voltar(v/voltar)\n').lower()
                 if comando.startswith('c'):
                     PLAYER['F'] = 1
                     PLAYER['H'] = 3
@@ -114,7 +115,7 @@ def Main():
                     PLAYER['PM'] = 30
                     PLAYER['MAX'] = (10, 30)
                     PLAYER['dano'] = 'seu cajado'
-                    PLAYER['ATK'] = {'Arpão':{'ATK':Arpao, 'PM':15},'Cajado': {'ATK':Atacar, 'PM': 0}, 'Bola de Fogo': {'ATK': BolaDeFogo, 'PM': 5}}
+                    PLAYER['ATK'] = {'Arpão':{'ATK':Arpao, 'PM':15},'Cajado': {'ATK':Atacar, 'PM': 0}, 'Bola de Fogo': {'ATK': BolaDeFogo, 'PM': 5}, 'Ajuda':{'ATK':Ajuda, 'PM':0}}
                     PLAYER['classe'] = 'm'
                     break
                 elif comando.startswith('v'):
@@ -131,7 +132,7 @@ def Main():
                       '<!> Cura mágica (2 PMs): você recupera entre 1 e 6 PVs próprios.\n'
                       '<!> Esconjuro (5 PMs): pode ser usada apenas contra mortos-vivos. Caso tenha sucesso, sua magia bane o alvo, destruindo de uma so vez.')
                 print('...')
-                comando = input('Confirmar (c/confirmar), voltar(v/voltar)').lower()
+                comando = input('Confirmar (c/confirmar), voltar(v/voltar)\n').lower()
                 if comando.startswith('c'):
                     PLAYER['F'] = 2
                     PLAYER['H'] = 2
@@ -141,7 +142,7 @@ def Main():
                     PLAYER['PM'] = 15
                     PLAYER['MAX'] = (15, 15)
                     PLAYER['dano'] = 'sua espada'
-                    PLAYER['ATK'] = {'Espada':{'ATK':Atacar, 'PM':0}, 'Cura Mágica':{'ATK':CuraMagica, 'PM':2}, 'Esconjuro':{'ATK': Esconjuro, 'PM': 5}, 'Ataque Vorpal':{'ATK':AtaqueVorpal, 'PM': 3}}
+                    PLAYER['ATK'] = {'Espada':{'ATK':Atacar, 'PM':0}, 'Cura Mágica':{'ATK':CuraMagica, 'PM':2}, 'Esconjuro':{'ATK': Esconjuro, 'PM': 5}, 'Ataque Vorpal':{'ATK':AtaqueVorpal, 'PM': 3}, 'Ajuda':{'ATK':Ajuda, 'PM':0}}
                     PLAYER['classe'] = 'p'
                     break
                 elif comando.startswith('v'):
@@ -168,11 +169,27 @@ def Main():
         if dano<=0:
             msg += ', mas seu ataque falha.'
         elif dado == 1:
-            msg += 'que é atingido em cheio, recebendo {} pontos de dano.'.format(dano)
+            msg += ', atingido-lhe em cheio, recebendo {} pontos de dano.'.format(dano)
             vitima['PV'] -= dano
         else:
             msg += ' e causa {} pontos de dano.'.format(dano)
             vitima['PV'] -= dano
+        print(msg)
+
+    def Ajuda():
+        '''
+        Função definida para o menu de ajuda.
+        '''
+        nonlocal PLAYER
+        msg = 'Ações disponíveis: '
+        aux = 1
+        for comando in PLAYER['ATK']:
+            msg += comando
+            if aux != len(PLAYER['ATK']):
+                msg+=', '
+            else:
+                msg+='.'
+            aux += 1
         print(msg)
         
     def AtaqueVorpal (atacante, vitima):
@@ -208,16 +225,17 @@ sofrendo {} pontos de dano.'.format(vitima['Nome'], dano))
             print('<!> {} consegue desviar do seu golpe no último instante, dando um salto para trás e saindo ileso do ataque.'.format(vitima['Nome']))
         vitima['PV'] -= dano
         
-    def CuraMagica (usuario):
+    def CuraMagica (*args):
         '''
         Função definida para a magia cura mágica
         '''
         nonlocal rolar
+        nonlocal PLAYER
         dado = rolar()
-        usuario['PM'] -= 2
-        usuario['PV'] = min(usuario['MAX'][0], usuario['PV'] + dado)
-        print ('<!> {0} concentra energias mágicas em suas mãos, levando-as ao corpo para amenizar seus ferimentos.'.format(usuario['Nome']))
-        print ('<!> {} recupera {} pontos de vida.'.format(usuario['Nome'], dado))
+        PLAYER['PM'] -= 2
+        PLAYER['PV'] = min(PLAYER['MAX'][0], PLAYER['PV'] + dado)
+        print ('<!> {0} concentra energias mágicas em suas mãos, levando-as ao corpo para amenizar seus ferimentos.'.format(PLAYER['Nome']))
+        print ('<!> {} recupera {} pontos de vida.'.format(PLAYER['Nome'], dado))
         
     def Disparar(atacante, vitima):
         '''
@@ -397,13 +415,51 @@ sofrendo {} pontos de dano.'.format(vitima['Nome'], dano))
         if dano <= 0:
             print('<!> No último instante, {} rola para o lado, escapando do ataque ileso.'.format(vitima['Nome']))
         else:
-            print('<<!> {0} É atingido pela mordida de {1}, que corta seu pescoço, dilacerando sua carne.\n'
-                  '{0} sofre {2} pontos de dano e {1} recupera {2} pontos de vida.'.format(vitima['Nome'], atacante['Nome'], dano))
+            print('<!> {0} É atingido pela mordida de {1}, que corta seu pescoço, dilacerando sua carne.\n'
+                  '{0} sofre {2} pontos de dano e {1} recupera 1 ponto de vida.'.format(vitima['Nome'], atacante['Nome'], dano))
         vitima['PV'] -= dano
-        atacante['PV'] += dano
+        atacante['PV'] += 1
 
     def EncontrarInimigo():  #IA de controle de inimigos
-        print('...')
+        nonlocal PLAYER
+        nonlocal Grunts
+        nonlocal Monstros
+        nonlocal General
+        nonlocal Chefe
+        nonlocal rolar
+        print('...\n')
+        def ContarInimigos(lista):
+            inimigos = []
+            for e in lista:
+                qtd = '{} {}'.format(lista.count(e), e['Nome'])
+                if qtd not in inimigos:
+                    inimigos.append(qtd)
+            mensagem = ''
+            aux = 1
+            for qtd in inimigos:
+                msg = qtd
+                if aux != len(inimigos):
+                    msg += ', '
+                elif (len(inimigos) != 1):
+                    msg = 'e ' + msg + '.'
+                else:
+                    msg += '.'
+                mensagem += msg
+                aux += 1
+            return mensagem
+        if (PLAYER['score'] > 0) and (PLAYER['score']%10 == 0):
+            pass
+        else:
+            ending = (PLAYER['score']%5 or 2)
+            fator = randint(1, ending)+1
+            inimigos = []
+            for a in range(fator):
+                inimigos.append(Grunts[randint(1, (len(Grunts)-1))].copy())
+            print('<!> Você segue caminhando pela masmorra, atravessando seus corredores escuros quando, se depara com '
+            'um grupo de inimigos que vem em sua direção.')
+            grupo_inimigo = ContarInimigos(inimigos)
+            print(grupo_inimigo)
+            return inimigos
         print('<!>')
 
     def Jogar():
@@ -416,7 +472,7 @@ sofrendo {} pontos de dano.'.format(vitima['Nome'], dano))
             comando = input('Continuar(c/continuar), Salvar(s/salvar), Ajuda(a/ajuda), Gastar Experiência (e/exp), Desistir(d/desistir)\n')
             if comando.startswith('c'):
                 break
-            elif comando.startswith ('s'):  # Menu de Salvar, lembrar de configurar
+            elif comando.startswith ('s'):
                 try:
                     arquivo = open('continue.txt', 'a')
                 except FileNotFoundError:
@@ -510,15 +566,15 @@ sofrendo {} pontos de dano.'.format(vitima['Nome'], dano))
                 
     #  Fichas dos inimigos abaixo:
 
-    ZUMBI = {'Nome': 'Zumbi', 'F':1, 'H':2, 'R':2, 'A':0, 'PdF':0, 'PV':10, 'PM':10, 'Status':'Normal', 'dano': 'suas garras', 'Ação':Grunt, 'Tipo': 'morto-vivo', 'score':5}
+    ZUMBI = {'Nome': 'Zumbi', 'F':1, 'H':1, 'R':1, 'A':0, 'PdF':0, 'PV':9, 'PM':1, 'Status':'Normal', 'dano': 'suas garras', 'Tipo': 'morto-vivo', 'score':1}
     ZUMBI['ATK'] = {'ataque': {'ATK': Atacar, 'PM': 0}}
     ZUMBI['Morte'] = 'O zumbi cai no chão, onde permanece imóvel.'
     
-    TROG = {'Nome': 'Troglodita', 'F':2, 'H':2, 'R':2, 'A':1, 'PdF': 0, 'PV':10, 'PM':10, 'Status': 'Normal', 'dano': 'sua clava', 'Ação': Grunt, 'Tipo': 'trog', 'score':7}
+    TROG = {'Nome': 'Troglodita', 'F':2, 'H':2, 'R':2, 'A':1, 'PdF': 0, 'PV':10, 'PM':10, 'Status': 'Normal', 'dano': 'sua clava', 'Tipo': 'trog', 'score':1}
     TROG['ATK'] = {'ataque':{'ATK': Atacar, 'PM': 0}}
     TROG['Morte'] = 'O horrendo lagarto trog cai no chão segurando as entranhas onde morre.'
 
-    VAMPIRO = {'Nome': 'Vampiro', 'F':2, 'H':2, 'R':2, 'A':1, 'PdF':0, 'PV':10, 'PM':10, 'Status':'Normal', 'dano': 'suas presas', 'Ação': Grunt, 'Tipo':'morto-vivo', 'score':8}
+    VAMPIRO = {'Nome': 'Vampiro', 'F':2, 'H':2, 'R':2, 'A':1, 'PdF':0, 'PV':10, 'PM':10, 'Status':'Normal', 'dano': 'suas presas', 'Tipo':'morto-vivo', 'score':2}
     VAMPIRO['ATK'] = {'ataque':{'ATK': MordidaVampiro, 'PM':0}}
     VAMPIRO['Morte'] = 'A besta vampira se desfaz em uma poça de sangue e gosma.'
 
@@ -526,6 +582,8 @@ sofrendo {} pontos de dano.'.format(vitima['Nome'], dano))
 
     # Grupos de inimigos
     Grunts = [ZUMBI, TROG, VAMPIRO]
+    for i in Grunts:
+        i['AI'] = Grunt
     Monstros = []
     General = []
     Chefe = []
@@ -592,7 +650,10 @@ sofrendo {} pontos de dano.'.format(vitima['Nome'], dano))
                     inimigos = EncontrarInimigo()
                     print('...')
                     Combate(PLAYER, inimigos)
+                else:  # Definir Game Over
+                    pass
         else:
             print('<!> Comando inválido. Tente novamente.')
 
 Main()
+print(':)')

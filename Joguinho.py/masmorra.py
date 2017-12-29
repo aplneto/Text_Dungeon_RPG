@@ -9,7 +9,7 @@ fim_de_jogo = False
 
 def Combate (player, inimigos):
     global fim_de_jogo
-    comando = input('Cálculo de iniciativa.\n')
+    comando = input('Cálculo de iniciativa.\nPressione enter para continuar.\n')
     player['Iniciativa'] = player['H'] + d6()
     for inimigo in inimigos:
         inimigo['Iniciativa'] = inimigo['H']+d6()
@@ -32,37 +32,52 @@ def Combate (player, inimigos):
             maior = lista.pop(index)
             return [maior]+ordenariniciativa(lista)
 
+    def verificardano ():
+        nonlocal player
+        nonlocal inimigos
+        if player['PV'] <= 0:
+            player['Morte'](player)(player)
+        aux = 0
+        for npc in inimigos:
+            if npc['PV'] <= 0:
+                player['score'] += npc['score']
+                print(npc['Morte'])
+                del(inimigos[aux])
+            aux += 1
+    
     ordem = ordenariniciativa([player]+inimigos)
     for personagem in ordem:
         print('{}:{}'.format(personagem['Nome'], personagem['Iniciativa']))
     while True:
         if player['PV'] <= 0:
             fim_de_jogo = True
-            break
+            return
         else:
             vez = 0
             for personagem in ordem:
                 if personagem['PV'] > 0 and personagem == player:
                     player['Ação'](player, inimigos)
-                    VerificarDano(ordem)
                 elif personagem['PV'] > 0:
                     personagem['AI'](player, personagem)
-                    VerificarDano(ordem)
-                else:
-                    print(personagem['Morte'])
-                    player['score'] += ordem.pop(vez)['score']
+                verificardano()
                 vez += 1
+            if len(inimigos) == 0:
+                print('')  # Mensagem de Vitória da Sala
+                return
         
 def ActPlayer(player, inimigos):
     '''
     Função de controle das ações do jogador.
     '''
     print('...')
-    print ('Chegou a sua vez. O que deseja fazer?\n')
+    print('PV: {}, PM: {}'.format(player['PV'], player['PM']))
+    print ('Chegou a sua vez. O que deseja fazer?\n(Em caso de duvidas utilize o comando "Ajuda")\n')
     while True:
         comando = input()
         if comando in player['ATK']:
-            if AcaoValida(player, comando):
+            if comando.lower() == 'ajuda':
+                player['ATK']['Ajuda']['ATK']()
+            elif player['ATK'][comando]['PM'] <= player['PM']:
                 inimigo = SelecionarInimigo(comando, inimigos)
                 player['ATK'][comando]['ATK'](player, inimigo)
                 return
@@ -89,23 +104,30 @@ def SelecionarInimigo (comando, lista_inimigos):
                 print ('({}) {}'.format(aux, inimigo['Nome']))
                 aux += 1
             index = int(input())
-            if (select < 0) or select>aux:
+            if (index < 0) or (index>aux):
                 print('Não entendi sua escolha. Tente novamente.')
                 continue
             else:
                 inimigos = (lista_inimigos[index-1], lista_inimigos[index], lista_inimigos[index-2])
                 return inimigos
+    elif comando == 'Cura Mágica':
+        return []
     else:
         while True:
             print ('Quem você vai atacar?')
             aux = 1
             for inimigo in lista_inimigos:
-                print ('({}) {}'.format(aux, inimigo['Nome']))
+                print ('({}) {}({} PV)'.format(aux, inimigo['Nome'], inimigo['PV']))
                 aux += 1
             index = int(input())
-            if (select < 0) or select>aux:
+            if (index < 0) or index>aux:
                 print('Não entendi sua escolha. Tente novamente.')
                 continue
             else:
                 alvo = lista_inimigos[index-1]
                 return alvo
+            
+def GameOver(player):
+    global fim_de_jogo
+    fim_de_jogo = True
+    return

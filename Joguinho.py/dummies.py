@@ -1,5 +1,5 @@
 '''
-Módulo de controle da Inteligencia Artificial dos mobs.
+Módulo de controle da Inteligencia Artificial dos npcs.
 '''
 from random import randint
 
@@ -8,7 +8,11 @@ def Grunt (player, inimigo):
     inimigo['ATK']['ataque']['ATK'](inimigo, player)
 
 def Monstro(player, inimigo):
-    pass
+    comando = input('<!> Vez de {}.\n...\nPressione Enter para continuar.\n'.format(inimigo['Nome']))
+    if not inimigo['PV'] <= inimigo['R']:
+        inimigo['ATK']['ataque']['ATK'](inimigo, player)
+    else:
+        inimigo['AKT']['habilidade']['ATK'](inimigo, player)
 
 def General(player, inimigo):
     pass

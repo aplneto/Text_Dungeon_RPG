@@ -98,17 +98,21 @@ def SelecionarInimigo (comando, lista_inimigos):
     '''
     if comando == 'Bola de Fogo':
         while True:
-            print ('Quem você vai atacar?')
+            inimigos = []
+            print ('Escolha o alvo primário:')
             aux = 1
             for inimigo in lista_inimigos:
-                print ('({}) {}'.format(aux, inimigo['Nome']))
+                print ('({}) {}({} PV)'.format(aux, inimigo['Nome'], inimigo['PV']))
                 aux += 1
             index = int(input())
             if (index < 0) or (index>aux):
                 print('Não entendi sua escolha. Tente novamente.')
                 continue
             else:
-                inimigos = (lista_inimigos[index-1], lista_inimigos[index], lista_inimigos[index-2])
+                inimigos.append(lista_inimigos[index-1])
+                for inimigo in lista_inimigos:
+                    if not (inimigo in inimigos):
+                        inimigos.append(inimigo)
                 return inimigos
     elif comando == 'Cura Mágica':
         return []

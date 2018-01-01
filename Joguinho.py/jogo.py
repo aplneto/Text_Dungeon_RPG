@@ -274,6 +274,7 @@ sofrendo {} pontos de dano.'.format(vitima['Nome'], dano))
         else:
             msg+=', liberando uma grande quantidade de luz que atinge seu alvo em cheio, destruindo-o.'
             vitima['PV'] = 0
+        print(msg)
 
     def GolpeDemolidor(atacante, vitima):
         '''
@@ -452,9 +453,11 @@ sofrendo {} pontos de dano.'.format(vitima['Nome'], dano))
                 mensagem += msg
                 aux += 1
             return mensagem
-        if (PLAYER['score'] > 0) and (PLAYER['score']%10 == 0):  # Enfrentar General
+        if (PLAYER['score'] >= 27):  # Enfrentar chefão final
             pass
-        elif (PLAYER['score'] > 0) and (PLAYER['score']%10 == 0):  # Enfrentar Monstro
+        elif (PLAYER['score'] > 0) and (PLAYER['score']%10 == 0):  # Enfrentar General
+            pass
+        elif (PLAYER['score'] > 0) and (PLAYER['score']%5 == 0):  # Enfrentar Monstro
             pass
         else:
             ending = (PLAYER['score']%5 or 2)
@@ -590,6 +593,10 @@ sofrendo {} pontos de dano.'.format(vitima['Nome'], dano))
     VAMPIRO['ATK'] = {'ataque':{'ATK': MordidaVampiro, 'PM':0}}
     VAMPIRO['Morte'] = 'A besta vampira se desfaz em uma poça de sangue e gosma.'
 
+    ESQUELETO = {'Nome': 'Esqueleto', 'F': 2, 'H':0, 'R':2, 'A':1, 'PdF':0, 'PV': 10, 'PM':10, 'Status':'Normal', 'dano':'seus punhos', 'Tipo':'morto-vivo','score':2}
+    ESQUELETO['ATK'] = {'ataque':{'ATK':Atacar, 'PM':0}}
+    ESQUELETO['Morte'] = 'O esqueleto se desmonta, tornando-se uma pilha de ossos comuns.'
+
     
 
     # Grupos de inimigos
@@ -603,6 +610,7 @@ sofrendo {} pontos de dano.'.format(vitima['Nome'], dano))
     # Inicio do Jogo
     while True:
         escolha = input('Novo Jogo(n/novo), Continuar(c/continuar), Sair(s/sair)\n').lower()
+        fim_de_jogo = False
         if escolha.startswith('c'):
             jogos_salvos = CarregarJogos()
             if len(jogos_salvos) == 0:

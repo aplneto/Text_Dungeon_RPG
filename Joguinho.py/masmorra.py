@@ -6,6 +6,7 @@ from random import randint
 d6 = lambda:randint(1,6)
 
 fim_de_jogo = False
+vilao = False
 
 def Combate (player, inimigos):
     global fim_de_jogo
@@ -36,7 +37,7 @@ def Combate (player, inimigos):
         nonlocal player
         nonlocal inimigos
         if player['PV'] <= 0:
-            player['Morte'](player)(player)
+            player['Morte'](player)
         aux = 0
         for npc in inimigos:
             if npc['PV'] <= 0:
@@ -134,4 +135,4 @@ def SelecionarInimigo (comando, lista_inimigos):
 def GameOver(player):
     global fim_de_jogo
     fim_de_jogo = True
-    return
+    print('Sua pontuação foi de {} Pontos.'.format(player['score']))

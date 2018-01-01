@@ -421,18 +421,62 @@ sofrendo {} pontos de dano.'.format(vitima['Nome'], dano))
             print('<!> No último instante, {} rola para o lado, escapando do ataque ileso.'.format(vitima['Nome']))
         else:
             print('<!> {0} É atingido pela mordida de {1}, que corta seu pescoço, dilacerando sua carne.\n'
-                  '{0} sofre {2} pontos de dano e {1} recupera 1 ponto de vida.'.format(vitima['Nome'], atacante['Nome'], dano))
+                  '{0} sofre {2} pontos de dano e {1} recupera {2} ponto de vida.'.format(vitima['Nome'], atacante['Nome'], dano))
         vitima['PV'] -= dano
-        if dano != 0:
-            atacante['PV'] += 1
+        atacante['PV'] += dano
+
+    def Berserker (usuario):
+        '''
+        Função definida para o modo berserker do ogre.
+        '''
+        usuario['PM'] = 0
+        usuario['PV'] += 5
+        usuario['F'] += 2
+        usuario['ATK']['poder'] = {'ATK':Atacar, 'PM':0}
+        print('<!> {0} dá um urro de fúria, fazendo as paredes da masmorra ao redor tremerem.\n'
+              '<!> {0} começa a babar e rosnar, segurando mais forte {1}.'.format(usuario['Nome'],usuario['dano']))
+
+    def EnxamedeTrovoes(atacante, vitima):
+        '''
+        Função definida para a magia especial do Necromante.
+        '''
+        nonlocal rolar
+        nonlocal testar
+        atacante['PM'] -= 5
+        print('Depois de algumas palavras mágicas, {} dispara de suas mãoes uma rajada de energia negra que emite um ruído estridente.'.format(atacante['Nome']))
+        ataque = rolar()+rolar()+atacante['H']
+        defesa = rolar()+vitima['H']
+        dano = ataque-defesa
+        dano = max(0, dano)
+        if dano == 0:
+            print('{} consegue saltar para longe da rajada de energia, escapando ileso do ataque.'.format(vitima['Nome']))
+        else:
+            if testar(vitima['A']):
+                queda = 0
+            else:
+                queda = rolar()
+            print('{} é atingido pela rajada de energia e arremessado para trás com violência.'.format(vitima['Nome']))
+            if queda:
+                print('{} sofre {} pontos de dano da magia e {} pontos de dano do impacto de sua queda.'.fomat(vitima['Nome'],dano, queda))
+            else:
+                print('{} sofre {} pontos de dano do golpe.'.format(vitima['Nome'],dano))
+
+    def ProtecaoMagica(usuario):
+        '''
+        Função definida para a magia especial do Necromante.
+        '''
+        usuario['A'] += 2
+        usuario['Status'] = 'Armadura'
+        print('{} sussurra palavras mágicas obscuras, fazendo surgir ao redor de seu corpo uma armadura de energia negra que aparenta ser feita de ossos.'.format(usuario['Nome']))
+        
 
     def EncontrarInimigo():  #IA de controle de inimigos
         nonlocal PLAYER
         nonlocal Grunts
         nonlocal Monstros
-        nonlocal General
-        nonlocal Chefe
+        nonlocal Generais
         nonlocal rolar
+        global vilao
         print('...\n')
         def ContarInimigos(lista):
             inimigos = []
@@ -453,12 +497,12 @@ sofrendo {} pontos de dano.'.format(vitima['Nome'], dano))
                 mensagem += msg
                 aux += 1
             return mensagem
-        if (PLAYER['score'] >= 27):  # Enfrentar chefão final
-            pass
-        elif (PLAYER['score'] > 0) and (PLAYER['score']%10 == 0):  # Enfrentar General
-            pass
+        if (PLAYER['score'] >= 30):  # Enfrentar General
+            vilao = True
+            return [Generais[0]]
         elif (PLAYER['score'] > 0) and (PLAYER['score']%5 == 0):  # Enfrentar Monstro
-            pass
+            fator = randint(1, 6)%2
+            return [Monstros[fator].copy()]
         else:
             ending = (PLAYER['score']%5 or 2)
             fator = randint(1, ending)+1
@@ -480,7 +524,7 @@ sofrendo {} pontos de dano.'.format(vitima['Nome'], dano))
         PLAYER['ATK']['Ajuda']  = {'ATK':Ajuda, 'PM':0}
         while True:
             print('...')
-            comando = input('Continuar(c/continuar), Salvar(s/salvar), Ajuda(a/ajuda), Gastar Experiência (e/exp), Desistir(d/desistir)\n')
+            comando = input('Continuar(c/continuar), Salvar(s/salvar), Personagem(p/personagem), Gastar Experiência (e/exp), Desistir(d/desistir)\n')
             if comando.startswith('c'):
                 break
             elif comando.startswith ('s'):
@@ -492,11 +536,96 @@ sofrendo {} pontos de dano.'.format(vitima['Nome'], dano))
                     arquivo.write('{}\n'.format(PLAYER['Nome']))
                     arquivo.write('{}f{}h{}r{}a{}p{}v{}m{}e{}c\n'.format(PLAYER['F'],PLAYER['H'],PLAYER['R'],PLAYER['A'],PLAYER['PdF'],PLAYER['PV'],PLAYER['PM'],PLAYER['PE'],PLAYER['classe']))
                     arquivo.write('{}\n'.format(PLAYER['score']))
+                    print('...')
                     print ('<!> {} salvo com sucesso!'.format(PLAYER['Nome']))
-            elif comando.startswith ('a'):  # Instruções da masmorra
-                pass
+            elif comando.startswith ('p'):  # Visualização do Personagem
+                print('...')
+                print('Força {}, Habilidade {}, Resistência {}, Armadura {}, Poder de Fogo {}, PV {}/{}, PM {}/{}'.format(PLAYER['F'], PLAYER['H'], PLAYER['R'], PLAYER['A'], PLAYER['PdF'], PLAYER['PV'], PLAYER['MAX'][0], PLAYER['PM'], PLAYER['MAX'][1]))
+                print('Pontos de Experiência: {}\nPontuação: {}'.format(PLAYER['PE'], PLAYER['score']))
+                msg = 'Ações: '
+                aux = 1
+                for comando in PLAYER['ATK']:
+                    msg += comando
+                    if aux != len(PLAYER['ATK']):
+                        msg+=', '
+                    else:
+                        msg+='.'
+                    aux += 1
             elif comando.startswith('e'):  # Menu de Experiência
-                pass
+                print('...')
+                print('Pontos de Experiência: {}'.format(PLAYER['PE']))
+                while True:
+                    comando = input('Recuperar PVs [1 PE](v/vida), Recuperar PMs [2 PE](m/magia), Aumentar Característica [10 PE](c/caracteristica), Sair(s/sair)').lower()
+                    print('...')
+                    if comando.startswith('v'):
+                        if (PLAYER['PE'] >= 1) and (PLAYER['PV'] < PLAYER['MAX'][0]):
+                            PLAYER['PV'] = PLAYER['MAX'][0]
+                            PLAYER['PE'] -= 1
+                            print('Pontos de Vida restaurados para {}'.format(PLAYER['PV']))
+                        elif (PLAYER['PV'] >= PLAYER['MAX'][0]):
+                            print('Seus Pontos de Vida estão no máximo, volte quando sofrer danos.')
+                        else:
+                            print('Você nao tem Pontos de Experiência suficientes')
+                    elif comando.startswith('m'):
+                        if (PLAYER['PE'] >= 2) and (PLAYER['PM'] < PLAYER['MAX'][1]):
+                            PLAYER['PM'] = PLAYER['MAX'][1]
+                            PLAYER['PE'] -= 2
+                            print('Pontos de Magia restaurados para {}'.format(PLAYER['PV']))
+                        elif (PLAYER['PM'] >= PLAYER['MAX'][1]):
+                            print('Você nao pode ter mais que {} Pontos de Magia'.format(PLAYER['MAX'][1]))
+                        else:
+                            print('Você nao tem Pontos de Experiência suficientes')
+                    elif comando.startswith('c'):
+                        if (PLAYER['PE'] >= 10):
+                            print('...')
+                            print('Força: {}, Habilidade: {}, Resistência: {}, Armadura: {}, Poder de Fogo: {}'.format(PLAYER['F'],PLAYER['H'],PLAYER['R'],PLAYER['A'],PLAYER['PdF']))
+                            print('Qual caracteristica deseja aprimorar?\nForça(F), Habilidade(H), Resistencia(R), Armadura(A), Poder de Fogo(P)')
+                            comando = input().lower()
+                            print('...')
+                            if comando.startswith('f'):
+                                if PLAYER['F'] < 5:
+                                    PLAYER['PE'] -= 10
+                                    PLAYER['F'] += 1
+                                    print('Você aumentou sua Força em +1 Ponto. Seus ataques corporais agora causam mais dano.')
+                                else:
+                                    print('Você já atingiu o valor limite para essa característica.')
+                            elif comando.startswith('h'):
+                                if PLAYER['H'] < 5:
+                                    PLAYER['PE'] -= 10
+                                    PLAYER['H'] += 1
+                                    print('Você aumentou sua Habilidade em +1 Ponto. Você se tornou mais rápido e preciso.')
+                                else:
+                                    print('Você já atingiu o valor limite para essa característica.')
+                            elif comando.startswith('r'):
+                                if PLAYER['R'] < 5:
+                                    PLAYER['PE'] -= 10
+                                    PLAYER['R'] += 1
+                                    PLAYER['PV'] += 5
+                                    PLAYER['PM'] += 5
+                                    PLAYER['MAX'] = ((PLAYER['MAX'][0]+5),(PLAYER['MAX'][1]+5))
+                                    print('Você aumentou sua Resistênciaça em +1 Ponto. Seus Pontos de Vida e Magia tambem aumentaram.')
+                                else:
+                                    print('Você já atingiu o valor limite para essa característica.')
+                            elif comando.startswith('a'):
+                                if PLAYER['A'] < 5:
+                                    PLAYER['PE'] -= 10
+                                    PLAYER['A'] += 1
+                                    print('Você aumentou sua Armadura em +1 Ponto. Você agora é mais resistente a danos.')
+                                else:
+                                    print('Você já atingiu o valor limite para essa característica.')
+                            elif comando.startswith('p'):
+                                if PLAYER['PdF'] < 5:
+                                    PLAYER['PE'] -= 10
+                                    PLAYER['PdF'] += 1
+                                    print('Você aumentou seu Poder de Fogo em +1 Ponto. Seus ataques a distancia agora causam mais dano.')
+                                else:
+                                    print('Você já atingiu o valor limite para essa característica.')
+                        else:
+                            print('Você não tem Pontos de Experiência suficientes para evoluir uma característica.')
+                    elif comando.startswith('s'):
+                        break
+                    else:
+                        print('Comando inválido. Tente novamente.')
             elif comando.startswith('d'):
                 fim_de_jogo = True
                 break
@@ -589,26 +718,41 @@ sofrendo {} pontos de dano.'.format(vitima['Nome'], dano))
     TROG['ATK'] = {'ataque':{'ATK': Atacar, 'PM': 0}}
     TROG['Morte'] = 'O horrendo lagarto trog cai no chão segurando as entranhas onde morre.'
 
-    VAMPIRO = {'Nome': 'Vampiro', 'F':2, 'H':2, 'R':2, 'A':1, 'PdF':0, 'PV':10, 'PM':10, 'Status':'Normal', 'dano': 'suas presas', 'Tipo':'morto-vivo', 'score':3}
-    VAMPIRO['ATK'] = {'ataque':{'ATK': MordidaVampiro, 'PM':0}}
-    VAMPIRO['Morte'] = 'A besta vampira se desfaz em uma poça de sangue e gosma.'
-
     ESQUELETO = {'Nome': 'Esqueleto', 'F': 2, 'H':0, 'R':2, 'A':1, 'PdF':0, 'PV': 10, 'PM':10, 'Status':'Normal', 'dano':'seus punhos', 'Tipo':'morto-vivo','score':2}
     ESQUELETO['ATK'] = {'ataque':{'ATK':Atacar, 'PM':0}}
     ESQUELETO['Morte'] = 'O esqueleto se desmonta, tornando-se uma pilha de ossos comuns.'
 
-    
+    KOBOLD = {'Nome': 'Kobold', 'F':0, 'H':2, 'R':1, 'A':0, 'PdF':2, 'PV': 5, 'PM': 5, 'Status':'Normal', 'dano':'sua funda', 'Tipo':'Humanoide', 'score':1}
+    KOBOLD['ATK'] = {'ataque':{'ATK':Disparar, 'PM':0}}
+    KOBOLD['Morte'] = 'O Kobold cai no chão imóvel.'
+
+    # Monstros
+    VAMPIRO = {'Nome': 'Vampiro', 'F':2, 'H':2, 'R':3, 'A':1, 'PdF':0, 'PV':10, 'PM':10, 'Status':'Normal', 'dano': 'suas garras', 'Tipo':'morto-vivo', 'score':2}
+    VAMPIRO['ATK'] = {'poder':{'ATK': MordidaVampiro, 'PM':3}, 'ataque':{'ATK':Atacar, 'PM':0}}
+    VAMPIRO['Morte'] = 'A besta vampira se desfaz em uma poça de sangue e gosma.'
+
+    OGRO = {'Nome': 'Ogre', 'F':3, 'H':1, 'R':2, 'A':2, 'PdF':0, 'PV':15, 'PM':5, 'Status':'Normal', 'dano':'sua clava', 'Tipo':'Humanoide','score':3}
+    OGRO['ATK'] = {'ataque':{'ATK':Atacar, 'PM':0}, 'poder':{'ATK':Berserker, 'PM':5}}
+    OGRO['Morte'] = 'A pancada do corpanzil inerte do ogre atingindo o chão faz as paredes da masmorra tremerem.'
+
+    #General
+    NECROMANTE = {'Nome': 'Necromante', 'F':0, 'H':3, 'R':3, 'A':2, 'PdF':3, 'PV': 15, 'PM':25, 'Status':'Normal', 'dano':'energia negra', 'Tipo':'Humano', 'score':10}
+    NECROMANTE['ATK'] = {'ataque': {'ATK': Disparar, 'PM':0}, 'poder':{'ATK':CranioVoador, 'PM':3}, 'especial':{'ATK':EnxamedeTrovoes, 'PM':5}, 'proteção':{'ATK':ProtecaoMagica, 'PM': 4}}
+    NECROMANTE['Morte'] = 'O Necromante começa a se desfazer em uma nuvem de fumaça negra.'
+    NECROMANTE['AI'] = General
 
     # Grupos de inimigos
-    Grunts = [ZUMBI, TROG, VAMPIRO]
+    Grunts = [ZUMBI, TROG, ESQUELETO, KOBOLD]
     for i in Grunts:
         i['AI'] = Grunt
-    Monstros = []
-    General = []
-    Chefe = []
+    Monstros = [VAMPIRO, OGRO]
+    for i in Monstros:
+        i['AI'] = Monstro
+    Generais = [NECROMANTE]
     
     # Inicio do Jogo
     while True:
+        print('...')
         escolha = input('Novo Jogo(n/novo), Continuar(c/continuar), Sair(s/sair)\n').lower()
         fim_de_jogo = False
         if escolha.startswith('c'):
@@ -648,8 +792,20 @@ sofrendo {} pontos de dano.'.format(vitima['Nome'], dano))
                             inimigos = EncontrarInimigo()
                             print('...')
                             Combate(PLAYER, inimigos)
-                            if not fim_de_jogo:
+                            if not fim_de_jogo and not vilao:
                                 PLAYER['PE'] += 1
+                            elif vilao:
+                                print('...')
+                                print('<!> Depois de derrotar o necromante uma alçapão se abre sobre a sua cabeça.\n'
+                                      '<!> Por um instante a claridade o deixa cego, mas aos poucos você recupera a sua visão.\n'
+                                      '<!> De dentro do alçapão uma luva de metal, como um braço de armadura oferece-lhe ajuda.\n'
+                                      '<!> Era Arkam, o braço metálico, com um sorriso estampado no rosto.'
+                                      '<Arkamm Braço Metálico> -- Você é um dos primeiros aventureiros novatos a conseguir concluir o desafio da masmorra.\n'
+                                      '<Arkam Braço Metálico> -- Parabéns!\n'
+                                      '<!> Atrás de Arkam outras pessoas sorriam e aplaudiam o seu feito, dando-lhe as boas vindas ao protetorado do reino.\n'
+                                      '<!> O Círculo se reunira mais uma vez, e a união de aventureiros tão poderosos só poderia significar uma coisa:\n'
+                                      '<!> Artom estava com problemas.')
+                                print('Parabéns, {}. Sua pontuação é de {} Pontos.'.format(PLAYER['Nome'],PLAYER['score']))
                     
                 
         elif escolha.startswith('s'):
@@ -677,11 +833,12 @@ sofrendo {} pontos de dano.'.format(vitima['Nome'], dano))
                     print('...')
                     Combate(PLAYER, inimigos)
                     if not fim_de_jogo:
-                        PLAYER['PE'] += 1
+                        PLAYER['PE'] += 2
                 else:  # Definir Game Over
                     pass
         else:
             print('<!> Comando inválido. Tente novamente.')
 
 Main()
+print('Obrigado por jogar!')
 print(':)')
